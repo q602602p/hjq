@@ -1,4 +1,4 @@
-## Welcome to GitHub Pages
+## 我最厉害，黄金泉你牛啊
 
 You can use the [editor on GitHub](https://github.com/q602602p/hjq/edit/master/index.md) to maintain and preview the content for your website in Markdown files.
 
