@@ -24,7 +24,7 @@ var heroImage = new Image();
 heroImage.onload = function () {
     heroReady = true;
 };
-heroImage.src = "../images/21.jpg";
+heroImage.src = "../images/21.JPG";
 
 
 // Monster image nv
@@ -33,7 +33,7 @@ var monsterImage = new Image();
 monsterImage.onload = function () {
     monsterReady = true;
 };
-monsterImage.src = "../images/22.jpg";
+monsterImage.src = "../images/22.JPG";
 
 
 
