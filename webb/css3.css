@@ -36,11 +36,11 @@ page{
 
 #c1{
     background-color: aqua;
+
     text-align: center;
     margin: 20%;
     animation: c1 10s infinite linear;
     border-radius: 50%;
-    
 }
 
 #x1{
@@ -49,7 +49,6 @@ page{
     margin: 20%;
     animation: x1 10s infinite linear;
     border-radius: 50%;
-    
 }
 
 #q1{
@@ -58,7 +57,6 @@ page{
     margin: 20%;
     animation: q1 10s infinite linear;
     border-radius: 50%;
-    
 }
 
 #d1{
@@ -67,19 +65,18 @@ page{
     margin: 20%;
     animation: d1 10s infinite linear;
     border-radius: 50%;
-    
 }
 
 #c2 img,#x2 img,#q2 img,#d2 img{
 
-    width: 600px;
-    height: 600px;
+    width:200px;
+    height:200px;
 
 }
 
 #c2{
-    width: 600px;
-    height: 600px;
+    width:200px;
+    height:200px;
     margin: auto;
     animation: c1 10s infinite linear;
 
@@ -88,8 +85,8 @@ page{
 
 
 #x2{
-    width: 600px;
-    height: 600px;
+    width:200px;
+    height:200px;
     margin: auto;
     animation: x1 10s infinite linear;
 
@@ -97,16 +94,16 @@ page{
 
 
 #q2{
-    width: 600px;
-    height: 600px;
+    width:200px;
+    height:200px;
     margin: auto;
     animation: q1 10s infinite linear;
 
 }
 
 #d2{
-    width: 600px;
-    height: 600px;
+    width:200px;
+    height:200px;
     margin: auto;
     animation: d1 10s infinite linear;
 
