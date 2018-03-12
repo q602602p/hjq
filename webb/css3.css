@@ -35,7 +35,8 @@ page{
 
 #c1{
     background-color: aqua;
-
+    width：200px;
+    height:200px;
     text-align: center;
     margin: 20%;
     animation: c1 10s infinite linear;
@@ -44,6 +45,8 @@ page{
 
 #x1{
     background-color: aqua;
+    width：200px;
+    height:200px;
     text-align: center;
     margin: 20%;
     animation: x1 10s infinite linear;
@@ -52,6 +55,8 @@ page{
 
 #q1{
     background-color: aqua;
+    width：200px;
+    height:200px;
     text-align: center;
     margin: 20%;
     animation: q1 10s infinite linear;
@@ -60,6 +65,8 @@ page{
 
 #d1{
     background-color: aqua;
+    width：200px;
+    height:200px;
     text-align: center;
     margin: 20%;
     animation: d1 10s infinite linear;
