@@ -160,7 +160,7 @@
         smallplanearray.splice(0,smallplanearray.length);
         kill.innerText=0;
         score.innerText=0;
-        player=new playerplaneproto("../images/22.jpg",50,500,10);//创建玩家小飞机
+        player=new playerplaneproto("22.jpg",50,500,10);//创建玩家小飞机
         cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
         smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
         kg=setInterval(kaiguan,30);//不断检查玩家开关
