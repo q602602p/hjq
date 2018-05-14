@@ -1,0 +1,771 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <title>快打小飞机</title>
+    <style>
+        *{
+            margin: 0;
+            padding: 0;
+        }
+
+        #main{
+            width: 400px;
+            height: 600px;
+            background: url("yuansu/1.jpg");
+            border: solid 1px black;
+            margin:20px auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #title{
+            font-size: 24px;
+            font-weight: bold;
+            position: absolute;
+            margin-top: 5px;
+            margin-left: 5px;
+            color: #000000;
+            z-index: 2;
+            display: block;
+
+        }
+
+        #stopgame{
+            width: 35px;
+            height: 35px;
+            border:3px solid #000000;
+            color: black;
+            border-radius: 40px;
+            text-align: center;
+            line-height:32px;
+            float: right;
+            margin-top: 10px;
+            margin-right: 10px;
+            color: #000000;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 3;
+        }
+
+        #stop{
+            width:400px;
+            height:400px;
+            padding-top: 200px;
+            position: absolute;
+            background-color: rgba(0,0,0,0.6);
+            z-index: 10;
+            left: 50%;
+            margin-left: -200px;
+            top:20px;
+            display: none;
+        }
+
+        .button{
+            width:150px;
+            height:50px;
+            color: #FFFFFF;
+            background-color: rgba(0,0,0,0.6);
+            text-align: center;
+            line-height:50px;
+            border-radius: 40px;
+            font-size: 20px;
+            font-weight: bold;
+            margin:0 auto;
+            margin-top: 10px;
+            cursor:pointer;
+        }
+    </style>
+</head>
+<body>
+<div id="main">
+    <div id="title">
+        <div>需要数<span id="needkill">10</span></div>
+        <div>杀敌数<span id="kill">0</span></div>
+        <div>关卡<span id="guangqia">1</span></div>
+
+    </div>
+
+    <div id="stopgame"  onclick="stopgame()">||</div>
+</div>
+
+<div id="stop">
+    <div class="button" onclick="congame()">继续游戏</div>
+    <div class="button" onclick="shanggame()">上一关卡</div>
+    <div class="button" onclick="music()">音量开关</div>
+</div>
+<!-- 注释内容 -->
+<audio src="2.mp3" id="bgmusic"></audio>
+<audio src="2.wav" id="zidansheng"></audio>
+<script>
+    var needkill=document.getElementById("needkill");
+    var kill=document.getElementById("kill");
+    var guangqia=document.getElementById("guangqia");
+
+    var mainObj=document.getElementById("main");
+    var smallplanearray=new Array();//小飞机数组
+    var bulletarray=new Array();
+    var upbtn=false;//按键开关
+    var downbtn=false;//按键开关
+    var leftbtn=false;//按键开关
+    var rightbtn=false;//按键开关
+    var kongbtn=false;//按键开关
+
+    var xuanze=0;//根据子弹打中的答案位置从左到右决定（1,2,3,4）
+    var zheng=4;//和系统描述相乘/60，用来随机决定zhengque的值（1,2,3,4）
+    var zhengque=0;//随机决定了（1,2,3,4)后决定正确答案的位置
+    var a=null;//从左往右选择的第一个选项对象
+    var b=null;//从左往右选择的第二个选项对象
+    var c=null;//从左往右选择的第三个选项对象
+    var d=null;//从左往右选择的第四个选项对象
+    var boss=null;//中药图片对象，玩家根据其判断选择中药名字
+    var pic=null;//飞机成功打中正确答案时，弹出的中药小卡片对象
+    var ttime=0;//在一段时间运行方法做--运算的对象
+    var kkk=0;//避免子弹多次发出击中正确答案所设计的变量
+    var bosscrash=null;//判断子弹打中选择的对象，并未xuanze赋值
+    var trytrytry=null;//子弹打中正确和不正确对象时，分别做什么事情的对象。
+    var now_time=null;//系统时间
+    var seconds=null;//系统时间下的秒数
+    var musicvar=0;
+    var killvar=10;
+    var bgm=document.getElementById("bgmusic");
+    var zds=document.getElementById("zidansheng");
+    bgm.play();
+
+    var player=new playerplaneproto("yuansu/2.jpg",50,500,10);//创建玩家小飞机
+    var cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
+    var smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
+    var kg=setInterval(kaiguan,50);//不断检查玩家开关
+    var bmove=setInterval(bulletmove,30);//不断改变子弹状态
+    var crash=setInterval(crashcheck,50);//不断检查碰撞
+    var yesorno=setInterval(bossborn,10);//不断检测第一阶段打小飞机有没有打够
+    var tt=setInterval(tttt,150);//不断检测ttime知否被置数，是的话在150*30毫秒过后去掉中药卡片对象，新建玩家飞机和敌对飞机开始新一局游戏。
+    var yyy=setInterval(yes,10);//不断检测pic是否为null，改变title的z-index
+
+    function stopgame() {
+        var stop=document.getElementById("stop");
+        stop.style.display="block";
+        clearInterval(cresmall);
+        clearInterval(smallmove);
+        clearInterval(kg);
+        clearInterval(bmove);
+        clearInterval(crash);
+        bgm.pause();
+        console.log("jiushilihai");
+    }
+
+    function congame() {
+        var stop=document.getElementById("stop");
+        stop.style.display="none";
+        if(boss==null){cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
+            smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
+            kg=setInterval(kaiguan,30);//不断检查玩家开关
+            bmove=setInterval(bulletmove,30);//不断改变子弹状态
+            crash=setInterval(crashcheck,50);//不断检查碰撞
+        }
+        else
+        {
+            vkg=setInterval(kaiguan,30);//不断检查玩家开关
+            bmove=setInterval(bulletmove,30);//不断改变子弹状态
+            crash=setInterval(crashcheck,50);//不断检查碰撞
+        }
+        bgm.play();
+        if(musicvar==1)
+        {bgm.pause();}
+    }
+
+    function shanggame() {
+        if(boss==null)
+        {
+
+            var stop=document.getElementById("stop");
+            stop.style.display="none";
+            mainObj.removeChild(player.imgNode);
+            player=null;
+            for(var i=0;i<bulletarray.length;i++)
+            {
+                mainObj.removeChild(bulletarray[i].imgNode);
+            }
+            for(var i=0;i<smallplanearray.length;i++)
+            {
+                mainObj.removeChild(smallplanearray[i].imgNode);
+            }
+            bulletarray.splice(0,bulletarray.length);
+            smallplanearray.splice(0,smallplanearray.length);
+            if(guangqia.innerText>1)
+            {guangqia.innerText=parseInt(guangqia.innerText)-1;}
+            needkill.innerText=killvar;
+            kill.innerText=0;
+            player=new playerplaneproto("yuansu/2.jpg",50,500,10);//创建玩家小飞机
+            cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
+            smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
+            kg=setInterval(kaiguan,30);//不断检查玩家开关
+            bmove=setInterval(bulletmove,30);//不断改变子弹状态
+            crash=setInterval(crashcheck,50);//不断检查碰撞
+            clearInterval(bosscrash);
+            clearInterval(trytrytry);
+        }
+
+        else
+        {
+            mainObj.removeChild(boss.imgNode);
+            mainObj.removeChild(a.imgNode);
+            mainObj.removeChild(b.imgNode);
+            mainObj.removeChild(c.imgNode);
+            mainObj.removeChild(d.imgNode);
+            boss=null;
+            a=null;
+            b=null;
+            c=null;
+            d=null;
+            var stop=document.getElementById("stop");
+            stop.style.display="none";
+            mainObj.removeChild(player.imgNode);
+            player=null;
+            for(var i=0;i<bulletarray.length;i++)
+            {
+                mainObj.removeChild(bulletarray[i].imgNode);
+            }
+            bulletarray.splice(0,bulletarray.length);
+            if(guangqia.innerText>1)
+            {guangqia.innerText=parseInt(guangqia.innerText)-1;}
+            needkill.innerText=killvar;
+            kill.innerText=0;
+            player=new playerplaneproto("yuansu/2.jpg",50,500,10);//创建玩家小飞机
+            cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
+            smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
+            kg=setInterval(kaiguan,30);//不断检查玩家开关
+            bmove=setInterval(bulletmove,30);//不断改变子弹状态
+            crash=setInterval(crashcheck,50);//不断检查碰撞
+            clearInterval(bosscrash);
+            clearInterval(trytrytry);
+        }
+        bgm.play();
+        if(musicvar==1)
+        {bgm.pause();}
+    }
+
+    function music() {
+        var stop=document.getElementById("stop");
+        stop.style.display="none";
+        if (musicvar==1)
+        {musicvar=0;}
+        else
+        {musicvar=1;}
+
+        var k=new congame();
+        console.log(musicvar);
+    }
+
+    function bossborn() {
+
+        if(kill.innerText==killvar)
+        {
+
+            var stop=document.getElementById("stop");
+            stop.style.display="none";
+
+            for(var i=0;i<bulletarray.length;i++)
+            {
+                mainObj.removeChild(bulletarray[i].imgNode);
+            }
+            for(var i=0;i<smallplanearray.length;i++)
+            {
+                mainObj.removeChild(smallplanearray[i].imgNode);
+            }
+            bulletarray.splice(0,bulletarray.length);
+            smallplanearray.splice(0,smallplanearray.length);
+            needkill.innerText=0;
+            kill.innerText=0;
+
+            clearInterval(cresmall);
+            clearInterval(smallmove);
+            var kk=guangqia.innerText;
+            now_time=new Date();
+            seconds=now_time.getSeconds();
+            zheng=zheng*seconds/60;
+            console.log(seconds);
+            console.log(zheng);
+            if(zheng<1){zhengque=1;}
+            if(zheng>=1&&zheng<2){zhengque=2;}
+            if(2<=zheng&&zheng<3){zhengque=3;}
+            if(3<=zheng&&zheng<4){zhengque=4;}
+            console.log(zhengque);
+            zheng=4;
+            boss=new bossboss("boss/"+(100000+parseInt(kk))+".jpg",100,20);
+
+            if(zhengque==1){
+                a=new bossboss("xuanze/"+(1000+parseInt(kk))+".jpg",40,250);
+                b=new bossboss("xuanze/"+(1001+parseInt(kk))+".jpg",130,250);
+                c=new bossboss("xuanze/"+(1002+parseInt(kk))+".jpg",220,250);
+                d=new bossboss("xuanze/"+(1003+parseInt(kk))+".jpg",310,250);
+            }
+
+            if(zhengque==2){
+                a=new bossboss("xuanze/"+(1001+parseInt(kk))+".jpg",40,250);
+                b=new bossboss("xuanze/"+(1000+parseInt(kk))+".jpg",130,250);
+                c=new bossboss("xuanze/"+(1002+parseInt(kk))+".jpg",220,250);
+                d=new bossboss("xuanze/"+(1003+parseInt(kk))+".jpg",310,250);
+            }
+
+            if(zhengque==3){
+                a=new bossboss("xuanze/"+(1002+parseInt(kk))+".jpg",40,250);
+                b=new bossboss("xuanze/"+(1001+parseInt(kk))+".jpg",130,250);
+                c=new bossboss("xuanze/"+(1000+parseInt(kk))+".jpg",220,250);
+                d=new bossboss("xuanze/"+(1003+parseInt(kk))+".jpg",310,250);
+            }
+
+            if(zhengque==4){
+                a=new bossboss("xuanze/"+(1003+parseInt(kk))+".jpg",40,250);
+                b=new bossboss("xuanze/"+(1001+parseInt(kk))+".jpg",130,250);
+                c=new bossboss("xuanze/"+(1002+parseInt(kk))+".jpg",220,250);
+                d=new bossboss("xuanze/"+(1000+parseInt(kk))+".jpg",310,250);
+            }
+            bosscrash=setInterval(crashbosscheck,10);
+            trytrytry=setInterval(trytry,10);
+
+
+        }
+        //bgm.play();
+
+    }
+
+    //创建敌方小飞机
+    /*
+    属性：
+        图片节点
+        图片
+        x坐标
+        y坐标
+        速度
+   行为：
+        移动
+        初始化：把飞机绑定到main
+     */
+    function smallplaneproto(imgSrc,x,y,speed) {
+        this.imgNode=document.createElement("img");
+        this.imgSrc=imgSrc;
+        this.x=x;
+        this.y=y;
+        this.isdead=false;
+        this.time=30;
+        this.speed=speed;
+        this.init=function()
+        {
+            this.imgNode.src=this.imgSrc;
+            this.imgNode.style.position="absolute";
+            this.imgNode.style.left=this.x+"px";
+            this.imgNode.style.top=this.y+"px";
+            this.imgNode.isdead=this.isdead;
+            this.imgNode.time=this.time;
+            mainObj.appendChild(this.imgNode)
+        }
+        this.init();
+        this.move=function ()
+        {
+            this.imgNode.style.top=parseInt(this.imgNode.style.top)+parseInt(this.speed)+"px";
+        }
+    }
+
+    function createSmallPlane() {
+        var a1="yuansu/3.jpg";
+        var a2=parseInt(Math.random()*368);
+        var a3=-parseInt(Math.random()*100+40);
+        var a4=parseInt(Math.random()*20);
+        var smallplane =new smallplaneproto(a1,a2,a3,a4);
+        smallplanearray.push(smallplane);
+    }
+
+
+    function smallplanemove()
+    {
+        for(var i=0;i<smallplanearray.length;i++)
+        {
+            if(smallplanearray[i].imgNode.isdead==false)
+            {
+                smallplanearray[i].move();
+                if(parseInt(smallplanearray[i].imgNode.style.top)>568)
+                {
+                    mainObj.removeChild(smallplanearray[i].imgNode);
+                    smallplanearray.splice(i,1);
+                }
+            }
+
+            else
+            {
+                smallplanearray[i].imgNode.time--;
+                if(smallplanearray[i].imgNode.time==0)
+                {
+                    mainObj.removeChild(smallplanearray[i].imgNode);
+                    smallplanearray.splice(i,1);
+                }
+            }
+        }
+    }
+
+    //创建玩家小飞机
+    /*
+    属性：
+        图片节点
+        图片
+        x坐标
+        y坐标
+        速度
+   行为：
+        移动：上下左右
+        发射子弹
+        初始化：把飞机绑定到main
+     */
+
+    function playerplaneproto(imgSrc,x,y,speed) {
+        this.imgNode=document.createElement("img");
+        this.imgSrc=imgSrc;
+        this.x=x;
+        this.y=y;
+        this.speed=speed;
+        this.init=function()
+        {
+            this.imgNode.src=this.imgSrc;
+            this.imgNode.style.position="absolute";
+            this.imgNode.style.left=this.x+"px";
+            this.imgNode.style.top=this.y+"px";
+            mainObj.appendChild(this.imgNode)
+        }
+        this.init();
+        this.moveleft=function () {
+            //根据按键判断执行事意件 进行移动
+            if(parseInt(this.imgNode.style.left)<-32)
+            {this.imgNode.style.left="400px";}
+            else
+            {
+                this.imgNode.style.left=parseInt(this.imgNode.style.left)-this.speed+"px"
+            }
+        }
+        this.moveright=function () {
+            //根据按键判断执行事意件 进行移动
+            if(parseInt(this.imgNode.style.left)>400)
+            {this.imgNode.style.left="-32px";}
+            else
+            {this.imgNode.style.left=parseInt(this.imgNode.style.left)+this.speed+"px";}
+
+        }
+        this.moveup=function () {
+            //根据按键判断执行事意件 进行移动
+            if(parseInt(this.imgNode.style.top)==0)
+            {this.imgNode.style.top="0px";}
+            else
+            {
+                this.imgNode.style.top=parseInt(this.imgNode.style.top)-this.speed+"px";
+            }
+        }
+        this.movedown=function () {
+            //根据按键判断执行事意件 进行移动
+            if(parseInt(this.imgNode.style.top)==560)
+            {this.imgNode.style.top="560px";}
+            else
+            {
+                this.imgNode.style.top = parseInt(this.imgNode.style.top) + this.speed + "px";
+            }
+        }
+        this.shoot=function () {
+            //根据按键判断执行事意件 发射子弹
+            var newbullet=new bulletproto("yuansu/4.jpg",(parseInt(this.imgNode.style.left)+16-3),(parseInt(this.imgNode.style.top)-6),30);
+            bulletarray.push(newbullet);
+        }
+
+    }
+
+    document.body.onkeydown=function () {
+        var e=window.event||arguments[0];
+        //console.log(e);
+        if(e.keyCode==37)
+        {leftbtn=true;}
+        if(e.keyCode==39)
+        {rightbtn=true;}
+        if(e.keyCode==38)
+        {upbtn=true;}
+        if(e.keyCode==40)
+        {downbtn=true;}
+        if(e.keyCode==32)
+        {kongbtn=true;}
+    }
+
+    document.body.onkeyup=function () {
+        var e=window.event||arguments[0];
+        //console.log(e);
+        if(e.keyCode==37)
+        {leftbtn=false;}
+        if(e.keyCode==39)
+        {rightbtn=false;}
+        if(e.keyCode==38)
+        {upbtn=false;}
+        if(e.keyCode==40)
+        {downbtn=false;}
+        if(e.keyCode==32)
+        {kongbtn=false;
+
+        }
+    }
+
+    function kaiguan() {
+        if(leftbtn==true)
+        {
+            player.moveleft();
+        }
+        if(rightbtn==true)
+        {
+            player.moveright();
+        }
+        if(upbtn==true)
+        {
+            player.moveup();
+        }
+        if(downbtn==true)
+        {
+            player.movedown();
+        }
+        if(kongbtn==true)
+        {
+            player.shoot();
+            zds.play();
+            if(musicvar==1)
+            {zds.pause();}
+        }
+    }
+    //子弹模板
+    function bulletproto(imgSrc,x,y,speed) {
+        this.imgNode=document.createElement("img");
+        this.imgSrc=imgSrc;
+        this.x=x;
+        this.y=y;
+        this.speed=speed;
+        this.init=function()
+        {
+            this.imgNode.src=this.imgSrc;
+            this.imgNode.style.position="absolute";
+            this.imgNode.style.left=this.x+"px";
+            this.imgNode.style.top=this.y+"px";
+            mainObj.appendChild(this.imgNode)
+        }
+        this.init();
+        this.move=function () {
+            this.imgNode.style.top=parseInt(this.imgNode.style.top)-parseInt(this.speed)+"px";
+        }
+    }
+
+    function bulletmove() {
+        for(var i=0;i<bulletarray.length;i++)
+        {   bulletarray[i].move();
+            if(parseInt(bulletarray[i].imgNode.style.top)<-6)
+            {
+                mainObj.removeChild(bulletarray[i].imgNode);
+                bulletarray.splice(i,1);
+            }
+        }
+
+    }
+
+
+    function crashcheck() {
+        for(var i=0;i<smallplanearray.length;i++)
+        {
+            for(var j=0;j<bulletarray.length;j++)
+            {
+                var spleft=parseInt(smallplanearray[i].imgNode.style.left);
+                var buleft=parseInt(bulletarray[j].imgNode.style.left);
+                var sptop=parseInt(smallplanearray[i].imgNode.style.top);
+                var butop=parseInt(bulletarray[j].imgNode.style.top);
+                //console.log(spleft);
+                if(smallplanearray[i].imgNode.isdead==false){
+                    if(butop<sptop&&buleft<=spleft+29&&buleft>=spleft-3&&butop<32+sptop)
+                    {
+
+                        mainObj.removeChild(bulletarray[j].imgNode);
+                        bulletarray.splice(j,1);
+                        smallplanearray[i].imgNode.src="yuansu/5.jpg";
+                        smallplanearray[i].imgNode.isdead=true;
+                        console.log("撞到了");
+
+                        kill.innerText=parseInt(kill.innerText)+1;
+                        needkill.innerText=parseInt(killvar)-parseInt(kill.innerText);
+                    }
+                }
+            }
+        }
+    }
+
+
+    function crashbosscheck() {
+        for(var j=0;j<bulletarray.length;j++)
+        {
+            var buleft=parseInt(bulletarray[j].imgNode.style.left);
+            var butop=parseInt(bulletarray[j].imgNode.style.top);
+            if(butop<300&&buleft<=90&&buleft>=40)
+            { xuanze=1;kkk++; }
+            if(butop<300&&buleft<=180&&buleft>=130)
+            { xuanze=2;kkk++;}
+            if(butop<300&&buleft<=270&&buleft>=220)
+            { xuanze=3;kkk++;}
+            if(butop<300&&buleft<=360&&buleft>=310)
+            { xuanze=4;kkk++;}
+        }
+    }
+
+    function trytry() {
+        if(kkk=1) {
+            if (xuanze == zhengque) {
+                xuanze = 5;
+                var stop = document.getElementById("stop");
+                stop.style.display = "none";
+                if (a != null) {
+                    mainObj.removeChild(a.imgNode);
+                    a = null;
+                }
+                if (b != null) {
+                    mainObj.removeChild(b.imgNode);
+                    b = null;
+                }
+                if (c != null) {
+                    mainObj.removeChild(c.imgNode);
+                    c = null;
+                }
+                if (d != null) {
+                    mainObj.removeChild(d.imgNode);
+                    d = null;
+                }
+                if (boss != null) {
+                    mainObj.removeChild(boss.imgNode);
+                    boss = null;
+                }
+
+                needkill.innerText = killvar;
+                kill.innerText = 0;
+
+                for (var i = 0; i < bulletarray.length; i++) {
+                    mainObj.removeChild(bulletarray[i].imgNode);
+                }
+
+                bulletarray.splice(0, bulletarray.length);
+                mainObj.removeChild(player.imgNode);
+                player = null;
+
+                pic = new bossboss("zhongyaojpg/"+parseInt(guangqia.innerText) + ".jpg", 0, 0);
+
+                ttime = 30;
+                guangqia.innerText++;
+                guangqiashu++;
+
+
+
+            }
+
+            if (xuanze != zhengque && xuanze != 0 && xuanze != 5) {
+                xuanze = 5;
+                var stop = document.getElementById("stop");
+                stop.style.display = "none";
+                if (a != null) {
+                    mainObj.removeChild(a.imgNode);
+                    a = null;
+                }
+                if (b != null) {
+                    mainObj.removeChild(b.imgNode);
+                    b = null;
+                }
+                if (c != null) {
+                    mainObj.removeChild(c.imgNode);
+                    c = null;
+                }
+                if (d != null) {
+                    mainObj.removeChild(d.imgNode);
+                    d = null;
+                }
+                if (boss != null) {
+                    mainObj.removeChild(boss.imgNode);
+                    boss = null;
+                }
+                for (var i = 0; i < bulletarray.length; i++) {
+                    mainObj.removeChild(bulletarray[i].imgNode);
+                }
+
+                bulletarray.splice(0, bulletarray.length);
+                mainObj.removeChild(player.imgNode);
+                player = null;
+                needkill.innerText = killvar;
+                kill.innerText = 0;
+                pic = new bossboss("zhongyaojpg/10000.jpg", 0, 0);
+
+                ttime = 30;
+
+            }
+        }
+    }
+
+    function tttt() {
+
+        if(ttime>0)
+        {
+            ttime=ttime-1;
+            console.log(ttime);
+            if(ttime==0)
+            {
+                if(pic!=null)
+                {
+                    mainObj.removeChild(pic.imgNode);
+                    pic=null;
+                    var stop=document.getElementById("stop");
+                    stop.style.display="none";
+                    needkill.innerText=killvar;
+                    kill.innerText=0;
+                    k=0;
+                    player=new playerplaneproto("yuansu/2.jpg",50,500,10);//创建玩家小飞机
+                    cresmall=setInterval(createSmallPlane,1000);//不断创建敌对小飞机
+                    smallmove=setInterval(smallplanemove,50);//不断改变小飞机状态
+                    crash=setInterval(crashcheck,50);//不断检查碰撞
+                    clearInterval(bosscrash);
+                    clearInterval(trytrytry);
+
+                }
+            }
+        }
+
+    }
+
+
+    function yes()
+    {
+        if(pic==null)
+        {
+            var stop=document.getElementById("title");
+            stop.style.display="block";
+        }
+        else
+        {
+            var stop=document.getElementById("title");
+            stop.style.display="none";
+        }
+    }
+
+    //boss
+    function bossboss(imgSrc,x,y) {
+        this.imgNode = document.createElement("img");
+        this.imgSrc = imgSrc;
+        this.x = x;
+        this.y = y;
+
+        this.init = function () {
+            this.imgNode.src = this.imgSrc;
+            this.imgNode.style.position = "absolute";
+            this.imgNode.style.left = this.x + "px";
+            this.imgNode.style.top = this.y + "px";
+            mainObj.appendChild(this.imgNode)
+        }
+        this.init();
+    }
+
+
+</script>
+
+</body>
+</html>
