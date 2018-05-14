@@ -579,7 +579,7 @@
                 var butop=parseInt(bulletarray[j].imgNode.style.top);
                 //console.log(spleft);
                 if(smallplanearray[i].imgNode.isdead==false){
-                    if(butop<sptop&&buleft<=spleft+29&&buleft>=spleft-3&&butop<32+sptop)
+                    if(butop>sptop&&buleft<=spleft+29&&buleft>=spleft-3&&butop<32+sptop)
                     {
 
                         mainObj.removeChild(bulletarray[j].imgNode);
@@ -602,13 +602,13 @@
         {
             var buleft=parseInt(bulletarray[j].imgNode.style.left);
             var butop=parseInt(bulletarray[j].imgNode.style.top);
-            if(butop<300&&buleft<=90&&buleft>=40)
+            if(butop>250&&butop<300&&buleft<=90&&buleft>=40)
             { xuanze=1;kkk++; }
-            if(butop<300&&buleft<=180&&buleft>=130)
+            if(butop>250&&butop<300&&buleft<=180&&buleft>=130)
             { xuanze=2;kkk++;}
-            if(butop<300&&buleft<=270&&buleft>=220)
+            if(butop>250&&butop<300&&buleft<=270&&buleft>=220)
             { xuanze=3;kkk++;}
-            if(butop<300&&buleft<=360&&buleft>=310)
+            if(butop>250&&butop<300&&buleft<=360&&buleft>=310)
             { xuanze=4;kkk++;}
         }
     }
